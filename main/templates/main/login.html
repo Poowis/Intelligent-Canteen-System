@@ -3,8 +3,7 @@
     <div class="content-section container">
         <form method="POST">
             {% csrf_token %}
-            <input type="text" name="username">
-            <input type="text" name="password">
+            {{ form.as_p }}
             <button type="submit">submit</button>
         </form>
         <div class="border-top pt-3">

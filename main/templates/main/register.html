@@ -1,0 +1,29 @@
+{% extends "main/base.html" %}
+
+{% block title %}
+Index
+{% endblock title %}
+
+{% block before_script %}
+{% endblock before_script %}
+
+{% block after_script %}
+{% endblock after_script %}
+
+{% block css %}
+{% endblock css %}
+
+{% block content %}
+kumpai42
+<form action="" method="POST">
+
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="submit">
+</form>
+
+
+
+
+
+{% endblock content %}
