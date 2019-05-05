@@ -3,9 +3,37 @@
 }
 
 body {
-    height: 2000px;
+
 }
 
+.noscroll {
+    overflow-y: hidden;
+}
+
+#popup {
+    z-index: 10000;
+}
+
+#popup.active {
+    display: block;
+}
+
+#popup .background {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    background-color: hsla(0, 0%, 0%, 0.7);
+    z-index: 5;
+}
+
+#popup .message {
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    z-index: 10;
+    transform: translate(-50%, -50%);
+
+}
 #content {
     margin-top: 56px;
 }

@@ -13,3 +13,30 @@
 //     methods: {
 //     }
 // });
+
+
+// let popup = new Vue({
+//     el: '#popup',
+//     data:{
+//         isActive: true
+//     },
+//     methods: {
+//         deactive: function() {
+//             this.isActive = false;
+//             document.body.className = "";
+//         }
+//     }
+// }
+// )
+
+
+function deactive() {
+    document.getElementById("popup").remove();
+    document.body.className = "";
+}
+
+function voter(action, res_id) {
+    document.getElementById("form").action = "/"+action+"_restaurants/";
+    document.getElementById("res_id").value = res_id;
+    document.getElementById("vote").click();
+}

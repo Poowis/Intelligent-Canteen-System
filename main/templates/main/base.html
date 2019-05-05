@@ -16,12 +16,11 @@
 
 </head>
 
-<body>
+<body {% if alert or warning or confirm %}class="noscroll" {% endif %}>
 
     <nav id="navbar" class="navbar navbar-expand-lg navbar-light color-bg-01 fixed-top" v-show="top<=10">
         <a class="navbar-brand" href="#">
-            <img src="https://via.placeholder.com/30" width="30" height="30"
-                class="d-inline-block align-top" alt="">
+            <img src="https://via.placeholder.com/30" width="30" height="30" class="d-inline-block align-top" alt="">
             Bootstrap
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -32,20 +31,20 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{% url 'index' %}">
                         <i class="material-icons">home</i>
                         Home
                         <span class="sr-only">(current)</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{% url 'restaurants' %}">
                         <i class="material-icons">store</i>
                         Browse Store
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{% url 'menus' %}">
                         <i class="material-icons">fastfood</i>
                         Browse Menu
                     </a>
@@ -72,23 +71,51 @@
                 </button>
                 <div class="dropdown-menu dropdown-menu-right">
                     {% if user.user_type == "staff" %}
-                    <a class="dropdown-item" href="#">My Restaurant</a>
+                    <a class="dropdown-item" href="{% url 'my_restaurant' %}">My Restaurant</a>
+                    {% elif user.user_type == "admin" %}
+                    <a class="dropdown-item" href="{% url 'admin:index' %}">Admin page</a>
                     {% endif %}
+                    <a class="dropdown-item" href="#">My Profile</a>
                     <a class="dropdown-item" href="#">My Orders</a>
                     <a class="dropdown-item" href="#">My History</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{% url 'logout' %}">Log Out</a>
                 </div>
             </div>
+            {% else %}
+            <a class="btn color-bg-02 text-light" href="{% url 'login' %}" role="button">Log In</a>
             {% endif %}
         </div>
     </nav>
+
+    {% if alert or warning or confirm %}
+    <div id="popup" onclick="deactive()">
+        <div class="background" @click="deactive"></div>
+        {% if alert %}
+        <div class="message alert card border-danger">
+            <h3>{{ alert }}</h3>
+        </div>
+        {% elif warning %}
+        <div class="message alert card border-warning">
+            <h3>
+                {{ warning }}
+            </h3>
+        </div>
+        {% elif confirm %}
+        <div class="message alert card border-success">
+            <h3>
+                {{ confirm }}
+            </h3>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
 
     <div id="content">
         {% block content %}{% endblock content %}
     </div>
 
-    <div id="footer" class="jumbotron-fluid color-bg-01" >
+    <div id="footer" class="jumbotron-fluid color-bg-01">
         <p class="text-center p-3 font-weight-bold">This website is belong to IT15</p>
     </div>
 
@@ -100,7 +127,6 @@
     <script src="{% static 'main/js/main.js' %}"></script>
 
     {% block after_script %}{% endblock after_script %}
-
 </body>
 
 </html>

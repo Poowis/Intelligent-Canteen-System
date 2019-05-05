@@ -1,5 +1,4 @@
 {% extends "main/base.html" %}
-
 {% block title %}
 Index
 {% endblock title %}
@@ -17,18 +16,22 @@ Index
 <div id="header" class="jumbotron-fluid">
     <div id="index-carousel" class="carousel slide" data-ride="true">
         <ol class="carousel-indicators">
-            {% for item in items %}
+            {% for menu in top_menus %}
             <li data-target="#index-carousel" data-slide-to="{{forloop.counter0}}" {% if forloop.first %}class="active"
                 {% endif %}></li>
             {% endfor %}
         </ol>
         <div class="carousel-inner">
-            {% for item in items %}
+            {% for menu in top_menus %}
             <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                <img src="https://via.placeholder.com/1920x500/?text=Food1" class="d-block w-100" alt="...">
+                <img src="{{ menu.image_path.url }}" class="d-block w-100" alt="...">
                 <div class="carousel-caption d-none d-md-block">
-                    <h5>First slide label</h5>
-                    <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+                    <h5>
+                        {{ menu.menu_name }}
+                    </h5>
+                    <p>
+                        {{ menu.description }}
+                    </p>
                 </div>
             </div>
             {% endfor %}

@@ -1,0 +1,90 @@
+{% extends "main/base.html" %}
+
+{% block title %}
+All Restaurants
+{% endblock title %}
+
+{% block before_script %}
+{% endblock before_script %}
+
+{% block after_script %}
+{% endblock after_script %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'main/css/restaurants.css' %}">
+{% endblock css %}
+
+{% block content %}
+
+<div class="container">
+    <h2>All Restaurants</h2>
+
+    {% for res in restaurants %}
+    <div class="restaurants card">
+        <div class="row no-gutters">
+            {% if forloop.counter0|divisibleby:2 %}
+            <div class="col-xl-4">
+                <img src="{{ res.image_path.url }}" height="auto" width="100%" alt="">
+            </div>
+            {% else %}
+            <div class="col-xl-4 d-xl-none">
+                <img src="{{ res.image_path.url }}" height="auto" width="100%" alt="">
+            </div>
+            {% endif %}
+            <div class="col-xl-8">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-9">
+                            <a href="{% url 'restaurant' res.res_id %}">
+                                <h4 class="card-title">{{ res.res_name }}</h4>
+                            </a>
+                        </div>
+                        <div class="col-3">
+                            <h5 class="card-text text-right">{{ res.status }}</h5>
+                        </div>
+                        <div class="col-12">
+                            <p class="card-text">
+                                {% if res.sunday or res.monday or res.tueday or res.wednesday or res.thursday or res.friday or res.saturday %}
+                                <b>วันเปิดทำการ</b>
+
+                                <br>
+                                {% endif %}
+
+                                {% if res.open_time and res.close_time %}
+                                <b>เวลาเปิดทำการ</b> {{ res.open_time|date:"H:i" }}น. ถึง
+                                {{ res.close_time|date:"H:i" }}น.<br>
+                                {% elif res.open_time %}
+                                <b>เวลาเปิดทำการ</b> {{ res.open_time|date:"H:i" }}น. เป็นต้นไป<br>
+                                {% elif res.close_time %}
+                                <b>เวลาเปิดทำการ</b> ถึง {{ res.close_time|date:"H:i" }}น.<br>
+                                {% endif %}
+                                {{ res.description }}
+                            </p>
+                        </div>
+                        <div class="col-4">
+                            {{ res.rating }}
+                            {% if res.user_id_id %}
+                            <a href="{% url 'unvote_restaurant' res.res_id request.path %}">Voted</a>
+                            {% else %}
+                            <a href="{% url 'vote_restaurant' res.res_id request.path %}">Vote</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if not forloop.counter0|divisibleby:2 %}
+            <div class="col-xl-4 d-none d-xl-block">
+                <img src="{{ res.image_path.url }}" height="auto" width="100%" alt="">
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+
+
+
+</div>
+
+
+{% endblock content %}

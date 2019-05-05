@@ -1,0 +1,35 @@
+{% extends "main/base.html" %}
+
+{% block title %}
+My Restaurant
+{% endblock title %}
+
+{% block before_script %}
+{% endblock before_script %}
+
+{% block after_script %}
+{% endblock after_script %}
+
+{% block css %}
+{% endblock css %}
+
+{% block content %}
+
+<div class="container">
+    {% if restaurant %}
+    <h4>My Restaurant {{ restaurant.status }}</h4>
+    <a href="{% url 'update_my_restaurant' %}">Update</a>
+    {% if restaurant.status == "open" %}
+    <a href="{% url 'close_my_restaurant' %}">Close</a>
+    {% else %}
+    <a href="{% url 'open_my_restaurant' %}">Open</a>
+    {% endif %}
+    
+    {% else %}
+    <h6>Try contacting your co-worker to add you into restaurant or admin for help</h6>
+    {% endif %}
+
+</div>
+
+
+{% endblock content %}

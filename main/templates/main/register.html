@@ -1,5 +1,5 @@
 {% extends "main/base.html" %}
-
+{% load crispy_forms_tags %}
 {% block title %}
 Index
 {% endblock title %}
@@ -8,19 +8,57 @@ Index
 {% endblock before_script %}
 
 {% block after_script %}
+<script src="{% static 'main/js/register.js' %}"></script>
 {% endblock after_script %}
 
 {% block css %}
 {% endblock css %}
 
 {% block content %}
-kumpai42
-<form action="" method="POST">
 
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="submit">
-</form>
+<div class="container">
+    <h3>Register to ICS</h3>
+    <form action="" method="POST">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-xl-6">
+                {{ form.first_name|as_crispy_field }}
+            </div>
+            <div class="col-xl-6">
+                {{ form.last_name|as_crispy_field }}
+            </div>
+            <div class="col-12">
+                {{ form.email|as_crispy_field }}
+            </div>
+            <div class="col-xl-6">
+                {{ form.username|as_crispy_field }}
+            </div>
+            <div class="col-xl-6">
+                {{ form.dob|as_crispy_field }}
+            </div>
+            <div class="col-xl-6">
+                {{ form.password1|as_crispy_field }}
+            </div>
+            <div class="col-xl-6">
+                {{ form.password2|as_crispy_field }}
+            </div>
+            <div id="user_type" class="col-xl-6" onchange="user_type()">
+                {{ form.user_type|as_crispy_field }}
+            </div>
+            <div id="staff" class="col-xl-6 d-none">
+                {{ staff_form.res_id|as_crispy_field }}
+            </div>
+            <div class="col-12">
+                {{ form.image_path|as_crispy_field }}
+            </div>
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-secondary">Submit</button>
+        </div>
+
+    </form>
+</div>
+
 
 
 

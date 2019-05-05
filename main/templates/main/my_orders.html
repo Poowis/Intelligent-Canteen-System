@@ -1,0 +1,32 @@
+{% extends "main/base.html" %}
+
+{% block title %}
+My Restaurant
+{% endblock title %}
+
+{% block before_script %}
+{% endblock before_script %}
+
+{% block after_script %}
+{% endblock after_script %}
+
+{% block css %}
+{% endblock css %}
+
+{% block content %}
+
+<div class="container">
+    {% for order in orders %}
+
+    {{ order.order_id }}
+
+    {% for menu in order.menus.all %}
+    {{ menu.menu_id }}
+    {% endfor%}
+
+    {% endfor%}
+
+</div>
+
+
+{% endblock content %}
