@@ -11,7 +11,6 @@ All Restaurants
 {% endblock after_script %}
 
 {% block css %}
-<link rel="stylesheet" href="{% static 'main/css/restaurants.css' %}">
 {% endblock css %}
 
 {% block content %}
@@ -24,11 +23,13 @@ All Restaurants
         <div class="row no-gutters">
             {% if forloop.counter0|divisibleby:2 %}
             <div class="col-xl-4">
-                <img src="{{ res.image_path.url }}" height="auto" width="100%" alt="">
+                <div class="img equal" style="background-image: url('{{ res.image_path.url }}')">
+                </div>
             </div>
             {% else %}
             <div class="col-xl-4 d-xl-none">
-                <img src="{{ res.image_path.url }}" height="auto" width="100%" alt="">
+                <div class="img equal" style="background-image: url('{{ res.image_path.url }}')">
+                </div>
             </div>
             {% endif %}
             <div class="col-xl-8">
@@ -44,9 +45,29 @@ All Restaurants
                         </div>
                         <div class="col-12">
                             <p class="card-text">
-                                {% if res.sunday or res.monday or res.tueday or res.wednesday or res.thursday or res.friday or res.saturday %}
-                                <b>วันเปิดทำการ</b>
-
+                                {% if res.Sunday or res.Monday or res.Tuesday or res.Wednesday or res.Thursday or res.Friday or res.Saturday %}
+                                <b>วันเปิดทำการ </b>
+                                {% if res.Sunday %}
+                                อา
+                                {% endif %}
+                                {% if res.Monday %}
+                                จ
+                                {% endif %}
+                                {% if res.Tuesday %}
+                                อ
+                                {% endif %}
+                                {% if res.Wednesday %}
+                                พ
+                                {% endif %}
+                                {% if res.Thursday %}
+                                พฤ
+                                {% endif %}
+                                {% if res.Friday %}
+                                ศ
+                                {% endif %}
+                                {% if res.Saturday %}
+                                ส
+                                {% endif %}
                                 <br>
                                 {% endif %}
 
@@ -74,7 +95,10 @@ All Restaurants
             </div>
             {% if not forloop.counter0|divisibleby:2 %}
             <div class="col-xl-4 d-none d-xl-block">
-                <img src="{{ res.image_path.url }}" height="auto" width="100%" alt="">
+                <div class="col-xl-4 d-xl-none">
+                    <div class="img equal" style="background-image: url('{{ res.image_path.url }}')">
+                    </div>
+                </div>
             </div>
             {% endif %}
         </div>

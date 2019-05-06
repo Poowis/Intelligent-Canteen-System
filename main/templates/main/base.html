@@ -49,18 +49,6 @@
                         Browse Menu
                     </a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Dropdown
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
-                </li>
             </ul>
             {% if user.is_authenticated %}
             <div class="btn-group">
@@ -69,16 +57,17 @@
                     <i class="material-icons">person</i>
                     {{ user.username }}
                 </button>
-                <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-menu dropdown-menu-lg-right">
                     {% if user.user_type == "staff" %}
                     <a class="dropdown-item" href="{% url 'my_restaurant' %}">My Restaurant</a>
                     {% elif user.user_type == "admin" %}
                     <a class="dropdown-item" href="{% url 'admin:index' %}">Admin page</a>
                     {% endif %}
-                    <a class="dropdown-item" href="#">My Profile</a>
-                    <a class="dropdown-item" href="#">My Orders</a>
-                    <a class="dropdown-item" href="#">My History</a>
+                    <a class="dropdown-item" href="{% url 'my_profile' %}">My Profile</a>
+                    <a class="dropdown-item" href="{% url 'my_orders' %}">My Orders</a>
+                    <a class="dropdown-item" href="{% url 'my_history' %}">My History</a>
                     <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{% url 'report' %}">Report us</a>
                     <a class="dropdown-item" href="{% url 'logout' %}">Log Out</a>
                 </div>
             </div>

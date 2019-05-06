@@ -2,8 +2,8 @@
     vertical-align: bottom;
 }
 
-body {
-
+#footer p {
+    margin: 0
 }
 
 .noscroll {
@@ -36,4 +36,26 @@ body {
 }
 #content {
     margin-top: 56px;
+    padding-top: 8px;
+    padding-bottom: 8px;
 }
+
+.img {
+    width: 100%;
+    background-position: center;
+    background-size: cover;
+}
+
+.carousel-item .img {
+    height: 500px;
+}
+
+.restaurants {
+    margin-top: 8px;
+    border-radius: 1em;
+    overflow: hidden;
+}
+
+
+
+

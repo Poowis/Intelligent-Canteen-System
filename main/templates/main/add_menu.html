@@ -1,0 +1,25 @@
+{% extends "main/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+    <div class="container">
+        <div class="content-section">
+            <div class="media">
+                <div class="media-body">
+                    <h2 class="account-heading"></h2>
+                </div>
+            </div>
+        </div>
+    <form method="POST">
+            {% csrf_token %}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">-- Add Menu --</legend>
+                {{ form|crispy }}
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">order</button>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
+
+

@@ -10,16 +10,16 @@ class LoginForm(forms.Form):
 
 
 class RegisterForm(UserCreationForm):
-    TYPES = (
-        ('user', 'user'),
-        ('staff', 'staff')
-    )
-    user_type = forms.ChoiceField(choices=TYPES)
+    # TYPES = (
+    #     ('user', 'user'),
+    #     ('staff', 'staff')
+    # )
+    # user_type = forms.ChoiceField(choices=TYPES)
 
     class Meta:
         model = User
         fields = ["email", "username", "password1", "password2",
-                  "first_name", "last_name", "dob", "image_path", "user_type"]
+                  "first_name", "last_name", "dob", "image_path"]
 
 
 class StaffForm(forms.ModelForm):
@@ -38,3 +38,24 @@ class AddStaffForm(forms.ModelForm):
     class Meta:
         model = Staff
         fields = ["user_id"]
+
+
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        fields = ["report_type", "detail"]
+
+
+class OrderForm(forms.ModelForm):
+
+    class Meta:
+        model = Order
+        fields = ['menus', 'receive_datetime', 'comment']
+
+
+class AddMenuForm(forms.ModelForm):
+
+    class Meta:
+        model = Menu
+        fields = ['menu_name', 'description', 'prepare_time',
+                  'image_path', 'price', 'amount', 'status']

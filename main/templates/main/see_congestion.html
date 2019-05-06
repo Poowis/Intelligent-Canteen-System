@@ -16,15 +16,7 @@ My Restaurant
 {% block content %}
 
 <div class="container">
-    {% for order in orders %}
 
-    {{ order.order_id }}
-
-    {% for menu in order.menus.all %}
-    {{ menu.menu_id }}
-    {% endfor%}
-
-    {% endfor%}
 
 </div>
 

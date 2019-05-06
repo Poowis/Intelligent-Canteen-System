@@ -14,17 +14,57 @@ Index
 {% endblock css %}
 
 {% block content %}
-<form id="form" action="" method="POST" class="d-none">
-    {% csrf_token %}
-    <input type="hidden" name="current_url" value="{{ request.path }}">
-    <input id="res_id" type="hidden" name="res_id" value="">
-    <button id="vote" type="submit" class="btn btn-secondary">Voted</button>
-</form>
+
 
 <div class="container">
-    <h4>{{ restaurant.res_name }}</h4>
+    <div class="row">
+        <div class="col-12">
+            <h4>{{ menu.menu_name }}</h4>
+        </div>
+        <div class="col-xl-6">
+            <img src="{{ menu.image_path.url }}" alt="" class="w-100">
+        </div>
+        <div class="col-xl-6">
+            <b>ร้าน </b>
+            {{ menu.res_id }}
+            <br>
+            {% if menu.prepare_time %}
+            <b>เวลาในการปรุงอาหาร</b>
+            {{ menu.prepare_time }}
+            <br>
+            {% endif %}
+            
+            {% if menu.price %}
+            <b>ราคา</b>
+            {{ menu.price }} บาท
+            <br>
+            {% endif %}
+            
+            {% if menu.amount %}
+            <b>คงเหลือ </b>
+            {{ menu.amount }} 
+            <br>
+            {% endif %}
+            
+            {{ menu.description }}
+            <br>
 
+            <b>เพิ่มเติม</b>
 
+            {% for extra in extras%}
+            - 
+            {{ extra.extra_name}}
+            <br>
+            {% endfor %}
+
+            {{ menu.rating }}
+            {% if voted %}
+            <a href="{% url 'unvote_menu' menu.menu_id request.path %}">Voted</a>
+            {% else %}
+            <a href="{% url 'vote_menu' menu.menu_id request.path %}">Vote</a>
+            {% endif %}
+        </div>
+    </div>
 
 
 </div>

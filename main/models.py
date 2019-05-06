@@ -29,7 +29,7 @@ class Report(models.Model):
     )
     report_type = models.CharField(
         max_length=10, choices=TYPE, default='canteen')
-    detail = models.TextField(null=True, blank=True)
+    detail = models.TextField(null=True, blank=False)
 
     def __str__(self):
         return self.user_id.username + " " + self.report_type
@@ -111,6 +111,7 @@ class Extra(models.Model):
         unique_together = (('extra_id', 'menu_id'),)
     menu_id = models.ForeignKey(Menu, on_delete=models.CASCADE)
     extra_id = models.AutoField(primary_key=True)
+    extra_name = models.CharField(max_length=255, null=True, blank=False)
     extra_description = models.TextField(null=True, blank=False)
     extra_price = models.FloatField(null=True, blank=True)
 
@@ -128,6 +129,7 @@ class Order(models.Model):
     TYPE = (
         ('ongoing', 'ongoing'),
         ('cancelled', 'cancelled'),
+        ('ready', 'ready'),
         ('done', 'done'),
     )
     order_status = models.CharField(

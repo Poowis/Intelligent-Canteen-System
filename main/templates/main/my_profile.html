@@ -16,7 +16,8 @@ My Restaurant
 {% block content %}
 
 <div class="container">
-
+    {{ user.username }}
+    <a href="{% url 'update_my_profile' %}">update</a>
 
 </div>
 

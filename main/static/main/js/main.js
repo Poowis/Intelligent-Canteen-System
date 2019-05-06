@@ -40,3 +40,13 @@ function voter(action, res_id) {
     document.getElementById("res_id").value = res_id;
     document.getElementById("vote").click();
 }
+
+function equal() {
+    let items = document.getElementsByClassName("equal")
+    for (let item of items) {
+        item.style.height = item.offsetWidth
+    }
+}
+
+window.addEventListener("resize", equal)
+equal()

@@ -1,5 +1,5 @@
 {% extends "main/base.html" %}
-
+{% load crispy_forms_tags %}
 {% block title %}
 My Restaurant
 {% endblock title %}
@@ -16,15 +16,12 @@ My Restaurant
 {% block content %}
 
 <div class="container">
-    {% for order in orders %}
-
-    {{ order.order_id }}
-
-    {% for menu in order.menus.all %}
-    {{ menu.menu_id }}
-    {% endfor%}
-
-    {% endfor%}
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit">Update</button>
+    </form>
+    
 
 </div>
 

@@ -3,16 +3,49 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import permission_required, login_required
 from .forms import *
+from datetime import date
+from django.db.models import Count
 
 # Create your views here.
 
 
-def index(request, foo=""):
+def index(request):
     context = {
         "top_menus": Menu.objects.order_by("rating")[:5],
-        "warning": foo
     }
     return render(request, "main/index.html", context=context)
+
+
+@login_required
+def my_profile(request):
+    context = {
+        "user": request.user
+    }
+    return render(request, "main/my_profile.html", context=context)
+
+
+@login_required
+def update_my_profile(request):
+    context = {}
+    if request.method == "POST":
+        form = RegisterForm(request.POST, instance=request.user)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            # if user.user_type == "staff":
+            #     staff_form = StaffForm(request.POST)
+            #     if staff_form.is_valid():
+            #         staff = staff_form.save(commit=False)
+            #         staff.user_id = user
+            #         staff.save()
+            return redirect('index')
+        else:
+            context["form"] = form
+            # context["staff_form"] = staff_form
+    else:
+        context["form"] = RegisterForm(instance=request.user)
+        # context["staff_form"] = StaffForm()
+    return render(request, "main/update_my_profile.html", context=context)
 
 
 @login_required
@@ -26,7 +59,7 @@ def my_orders(request):
 @login_required
 def my_history(request):
     context = {
-        "orders": Order.objects.filter(user_id=request.user, status="done")
+        "orders": Order.objects.filter(user_id=request.user, order_status="done")
     }
     return render(request, "main/my_history.html", context=context)
 
@@ -62,28 +95,42 @@ def my_logout(request):
 
 
 def my_register(request):
-    context = {
-        "asd": "asd"
-    }
+    context = {}
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            if user.user_type == "staff":
-                staff_form = StaffForm(request.POST)
-                if staff_form.is_valid():
-                    staff = staff_form.save(commit=False)
-                    staff.user_id = user
-                    staff.save()
+            # if user.user_type == "staff":
+            #     staff_form = StaffForm(request.POST)
+            #     if staff_form.is_valid():
+            #         staff = staff_form.save(commit=False)
+            #         staff.user_id = user
+            #         staff.save()
             return redirect('index')
         else:
             context["form"] = form
-            context["staff_form"] = staff_form
+            # context["staff_form"] = staff_form
     else:
         context["form"] = RegisterForm()
-        context["staff_form"] = StaffForm()
+        # context["staff_form"] = StaffForm()
     return render(request, "main/register.html", context=context)
+
+
+def report(request):
+    context = {}
+    if request.method == "POST":
+        form = ReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.user_id = request.user
+            report.save()
+            return redirect("index")
+        else:
+            context["form"] = form
+    else:
+        context["form"] = ReportForm()
+    return render(request, "main/report.html", context=context)
 
 
 def restaurants(request):
@@ -103,9 +150,22 @@ def restaurants(request):
 
 
 def restaurant(request, res_id):
+    res = Restaurant.objects.get(pk=res_id)
+    user_id = request.user.id
+    if not user_id:
+        user_id = 0
     context = {
-        "restaurant": Restaurant.objects.get(pk=res_id),
-        "menus": Menu.objects.filter(res_id=res_id)
+        "restaurant": res,
+        "voted": request.user in res.users.all(),
+        "menus": Menu.objects.raw('''
+        select *
+        from main_menu m
+        left outer join (select menu_id_id, user_id_id
+				from main_user_menu
+                where user_id_id = %d) as u
+        on (m.menu_id = u.menu_id_id)
+        where m.res_id_id = %d
+        order by status desc, menu_id''' % (user_id, res.pk))
     }
     return render(request, "main/restaurant.html", context=context)
 
@@ -148,7 +208,8 @@ def menu(request, menu_id):
     menu = Menu.objects.get(pk=menu_id)
     context = {
         "menu": menu,
-        "extras": Extra.objects.filter(pk=menu_id)
+        "voted": request.user in menu.users.all(),
+        "extras": Extra.objects.filter(menu_id=menu_id)
     }
     return render(request, "main/menu.html", context=context)
 
@@ -227,3 +288,41 @@ def update_my_restaurant(request):
             context["warning"] = "You do not work for Restauarant yet"
         return render(request, "main/update_my_restaurant.html", context=context)
     return redirect("index")
+
+
+def see_congestion(request):
+    restaurants = Restaurant.objects.annotate(orders=Count('order'))
+    context = {
+        "restaurants": restaurants
+    }
+    return render(request, "main/see_congestion.html", context=context)
+
+
+@login_required
+def order(request):
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.user_id = request.user
+            form.save()
+            # messages.success(request, 'order has been sent!')
+            return redirect('index')       
+    else:
+        form = OrderForm()
+    return render(request, 'main/order.html', {'form': form})
+
+
+@login_required
+def sell_report(request):
+    return None
+
+
+@login_required
+def my_restaurant_orders(request):
+    return None
+
+
+@login_required
+def add_menu(request):
+    return None

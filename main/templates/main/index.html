@@ -10,6 +10,11 @@ Index
 {% endblock after_script %}
 
 {% block css %}
+<style>
+    #content {
+        padding-top: 0;
+    }
+</style>
 {% endblock css %}
 
 {% block content %}
@@ -24,7 +29,9 @@ Index
         <div class="carousel-inner">
             {% for menu in top_menus %}
             <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                <img src="{{ menu.image_path.url }}" class="d-block w-100" alt="...">
+                <div class="img" style="background-image: url('{{ menu.image_path.url }}')">
+
+                </div>
                 <div class="carousel-caption d-none d-md-block">
                     <h5>
                         {{ menu.menu_name }}
