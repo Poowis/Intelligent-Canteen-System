@@ -50,12 +50,9 @@
     height: 500px;
 }
 
-.restaurants {
+.card {
     margin-top: 8px;
     border-radius: 1em;
     overflow: hidden;
 }
-
-
-
 

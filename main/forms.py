@@ -50,7 +50,7 @@ class OrderForm(forms.ModelForm):
 
     class Meta:
         model = Order
-        fields = ['menus', 'receive_datetime', 'comment']
+        fields = ['receive_datetime', 'comment']
 
 
 class AddMenuForm(forms.ModelForm):

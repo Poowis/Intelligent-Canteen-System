@@ -1,5 +1,5 @@
 from django.contrib import admin
-from main.models import User, Report, Restaurant, Menu, Extra, Order
+from main.models import User, Report, Restaurant, Menu, Extra, Order, Staff
 from django.contrib.auth.models import Permission
 
 admin.site.register(Permission)
@@ -12,16 +12,15 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ['username']
 
     fieldsets = [
-        (None, {'fields': ['username', 'password', 'first_name',
+        (None, {'fields': ['username', 'user_type', 'first_name',
                            'last_name', 'email', 'dob', 'image_path']}),
-        ("User Management", {
-            'fields': ['last_login', 'date_joined'], 'classes': ['collapse']}),
         ("User Permissions", {
-            'fields': ['user_type', 'groups', 'user_permissions', 'is_staff', 'is_active'], 'classes': ['collapse']})
+            'fields': ['groups', 'user_permissions'], 'classes': ['collapse']})
     ]
 
 
 admin.site.register(User, UserAdmin)
+admin.site.register(Staff)
 
 
 class ReportAdmin(admin.ModelAdmin):

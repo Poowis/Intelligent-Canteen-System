@@ -291,31 +291,91 @@ def update_my_restaurant(request):
 
 
 def see_congestion(request):
-    restaurants = Restaurant.objects.annotate(orders=Count('order'))
     context = {
-        "restaurants": restaurants
+        "congestions": Restaurant.objects.raw('''
+        SELECT res_id, res_name, COUNT(order_id) number, r.status
+        from ics.main_restaurant r
+        LEFT OUTER JOIN (  SELECT m.res_id_id, o.order_status, o.order_id
+		    from ics.main_order o
+		    join ics.main_order_menu om
+		    on (o.order_id = om.order_id_id)
+		    join ics.main_menu m
+		    on (om.menu_id_id = m.menu_id)
+            WHERE o.order_status = "ongoing") as e
+        on (r.res_id = e.res_id_id)
+        group by res_id
+        order by status desc, res_id
+        ''')
     }
     return render(request, "main/see_congestion.html", context=context)
 
 
 @login_required
-def order(request):
+def order(request, menu_id):
+    menu = Menu.objects.get(pk=menu_id)
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
             order.user_id = request.user
             form.save()
-            # messages.success(request, 'order has been sent!')
-            return redirect('index')       
+            menu.quantity = 10
+            order.menus.add(menu)
+            return redirect('index')
     else:
         form = OrderForm()
-    return render(request, 'main/order.html', {'form': form})
+    context = {
+        "menu": menu,
+        "form": form
+    }
+    return render(request, 'main/order.html', context=context)
 
 
 @login_required
 def sell_report(request):
-    return None
+    today = date.today()
+    if request.user.user_type == "staff":
+        res = Staff.objects.get(pk=request.user).res_id_id
+        context = {
+            "all": Menu.objects.raw('''
+            select menu_id, menu_name, sum(om.quantity) "quantity"
+            from main_restaurant r
+            join main_menu m
+            on (r.res_id = m.res_id_id)
+            join main_order_menu om
+            on (m.menu_id = om.menu_id_id)
+            join main_order o
+            on (o.order_id = om.order_id_id)
+            where o.order_status = "done" and r.res_id = %d
+            group by m.menu_id
+            '''%(res)),
+            "month": Menu.objects.raw('''
+            select menu_id, menu_name, sum(om.quantity) "quantity"
+            from main_restaurant r
+            join main_menu m
+            on (r.res_id = m.res_id_id)
+            join main_order_menu om
+            on (m.menu_id = om.menu_id_id)
+            join main_order o
+            on (o.order_id = om.order_id_id)
+            where o.order_status = "done" and o.receive_datetime like "%s-%02d-%s"
+            group by m.menu_id
+            ''' % ('%%', today.month, '%%')),
+            "year": Menu.objects.raw('''
+            select menu_id, menu_name, sum(om.quantity) "quantity"
+            from main_restaurant r
+            join main_menu m
+            on (r.res_id = m.res_id_id)
+            join main_order_menu om
+            on (m.menu_id = om.menu_id_id)
+            join main_order o
+            on (o.order_id = om.order_id_id)
+            where o.order_status = "done" and o.receive_datetime like "%d-%s"
+            group by m.menu_id
+            ''' % (today.year, '%%')),
+        }
+        return render(request, 'main/sell_report.html', context=context)
+    return redirect("index")
 
 
 @login_required

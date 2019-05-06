@@ -1,0 +1,30 @@
+{% extends "main/base.html" %}
+
+{% block title %}
+Canteen Congestion
+{% endblock title %}
+
+{% block before_script %}
+{% endblock before_script %}
+
+{% block after_script %}
+{% endblock after_script %}
+
+{% block css %}
+{% endblock css %}
+
+{% block content %}
+
+<div class="container">
+    <h4>My Restaurant Report</h4>
+    {% for item in all %}
+{{ item.menu_name }}
+{{ item.quantity }}
+
+    {% endfor %}
+
+
+</div>
+
+
+{% endblock content %}

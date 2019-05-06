@@ -11,7 +11,7 @@ class User(AbstractUser):
     user_type = models.CharField(max_length=5, choices=TYPES, default='user')
     dob = models.DateField(null=True, blank=True)
     image_path = models.ImageField(
-        default='profile_images/default.png', upload_to='profile_images', null=True, blank=True)
+        default='user_images/default.png', upload_to='user_images', null=True, blank=True)
 
     def __str__(self):
         return self.username

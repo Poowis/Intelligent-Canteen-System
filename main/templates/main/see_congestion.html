@@ -1,7 +1,7 @@
 {% extends "main/base.html" %}
 
 {% block title %}
-My Restaurant
+Canteen Congestion
 {% endblock title %}
 
 {% block before_script %}
@@ -16,6 +16,25 @@ My Restaurant
 {% block content %}
 
 <div class="container">
+    <h4>Canteen Congestion</h4>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">ร้านอาหาร</th>
+                <th scope="col">สถานะ</th>
+                <th scope="col" class="text-center">คิวที่กำลังดำเนินการอยู่</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for con in congestions %}
+            <tr>
+                <th scope="row">{{ con.res_name }}</th>
+                <td>{{ con.status }}</td>
+                <td class="text-center">{{ con.number }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
 
 </div>

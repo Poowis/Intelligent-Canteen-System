@@ -16,8 +16,39 @@ My Restaurant
 {% block content %}
 
 <div class="container">
-    {{ user.username }}
-    <a href="{% url 'update_my_profile' %}">update</a>
+    <h4 class="float-left">My Profile</h4>
+    <a href="{% url 'update_my_profile' %}" role="button" class="btn btn-primary float-right">update</a>
+    <img src="{{ user.image_path.url }}" alt="">
+    <table class="table table-striped">
+        <tbody>
+            <tr>
+                <th scope="row">First Name</th>
+                <td>{{ user.first_name }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Last Name</th>
+                <td>{{ user.last_name }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Username</th>
+                <td>{{ user.username }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Email</th>
+                <td>{{ user.email }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Account type</th>
+                <td>{{ user.user_type }}</td>
+            </tr>
+            <tr>
+                <th scope="row">Date of birth</th>
+                <td>{{ user.dob }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+
 
 </div>
 

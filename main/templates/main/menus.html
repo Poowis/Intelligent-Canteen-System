@@ -21,25 +21,26 @@ Index
     <div class="row">
         {% for menu in menus %}
         <div class="col-xl-3 col-lg-4 col-md-6">
-            <div class="img equal" style="background-image: url('{{ menu.image_path.url }}')">
+            <div class="card">
+                <div class="img equal" style="background-image: url('{{ menu.image_path.url }}')"></div>
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <a href="{% url 'menu' menu.menu_id %}">{{ menu.menu_name }}</a>
+                    </h4>
+                    <p class="card-text">
+                        {{ menu.res_id.res_name }} {{ menu.status }}
+                        <br>
+                        {{ menu.rating }}
+                        {% if menu.user_id_id %}
+                        <a href="{% url 'unvote_menu' menu.menu_id request.path %}">Voted</a>
+                        {% else %}
+                        <a href="{% url 'vote_menu' menu.menu_id request.path %}">Vote</a>
+                        {% endif %}
+                    </p>
+                </div>
             </div>
-            <div class="class-body">
-                <h4 class="card-title">
-                    <a href="{% url 'menu' menu.menu_id %}">{{ menu.menu_name }}</a>
-                </h4>
-                <p class="card-text">
-                    {{ menu.res_id.res_name }} {{ menu.status }}
-                    <br>
-                    {{ menu.rating }}
-                    {% if menu.user_id_id %}
-                    <a href="{% url 'unvote_menu' menu.menu_id request.path %}">Voted</a>
-                    {% else %}
-                    <a href="{% url 'vote_menu' menu.menu_id request.path %}">Vote</a>
-                    {% endif %}
-                </p>
-            </div>
-
         </div>
+
 
         {% endfor %}
     </div>
