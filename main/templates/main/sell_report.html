@@ -17,13 +17,60 @@ Canteen Congestion
 
 <div class="container">
     <h4>My Restaurant Report</h4>
-    {% for item in all %}
-{{ item.menu_name }}
-{{ item.quantity }}
+    <h3>ยอดขายของเดือนนี้</h3>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">รายการอาหาร</th>
+                <th scope="col">ยอดขาย</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in month %}
+            <tr>
+                <td>{{ item.menu_name }}</td>
+                <td>{{ item.quantity }}</td>
+            </tr>
+            {% endfor %}
 
-    {% endfor %}
+        </tbody>
+    </table>
+    <h3>ยอดขายของปีนี้</h3>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">รายการอาหาร</th>
+                <th scope="col">ยอดขาย</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in year %}
+            <tr>
+                <td>{{ item.menu_name }}</td>
+                <td>{{ item.quantity }}</td>
+            </tr>
+            {% endfor %}
 
+        </tbody>
+    </table>
+    <h3>ยอดขายทั้งหมด</h3>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">รายการอาหาร</th>
+                <th scope="col">ยอดขาย</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in all %}
+            <tr>
+                <td>{{ item.menu_name }}</td>
+                <td>{{ item.quantity }}</td>
+            </tr>
+            {% endfor %}
 
+        </tbody>
+    </table>
 </div>
 
 

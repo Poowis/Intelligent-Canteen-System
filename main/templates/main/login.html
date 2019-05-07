@@ -11,8 +11,9 @@
         {{ form|crispy }}
         <button type="submit" class="btn btn-secondary">Submit</button>
     </form>
+    <small class="text-muted"><a href="{% url 'social:begin' 'facebook' %}">Login with Facebook</a></small>
+    <small class="text-muted"><a href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a></small>
+    <small class="text-muted">Need An Account? <a class="ml-2" href="{% url 'register' %}">Sign Up Now</a></small>
 </div>
-<small class="text-muted"><a href="{% url 'social:begin' 'facebook' %}">Login with Facebook</a></small>
-<small class="text-muted"><a href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a></small>
-<small class="text-muted">Need An Account? <a class="ml-2" href="{% url 'register' %}">Sign Up Now</a></small>
+
 {% endblock content %}

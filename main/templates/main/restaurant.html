@@ -93,6 +93,7 @@ Index
                         {% else %}
                         <a href="{% url 'vote_menu' menu.menu_id request.path %}">Vote</a>
                         {% endif %}
+                        <a href="{% url 'order' menu.menu_id request.path %}" role="button" class="btn btn-warning">Order</a>
                     </p>
                 </div>
             </div>

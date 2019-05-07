@@ -1,7 +1,7 @@
 {% extends "main/base.html" %}
 
 {% block title %}
-My Restaurant
+Canteen Congestion
 {% endblock title %}
 
 {% block before_script %}
@@ -15,14 +15,16 @@ My Restaurant
 
 {% block content %}
 
-<div class="container">
-    <h4>My Orders</h4>
+<div class="jumbotron-fluid p-2">
+    <h4>My Restaurant Orders</h4>
     <table class="table table-striped">
         <thead class="thead-dark">
             <tr>
                 <th scope="col">รหัสออเดอร์</th>
+                <th scope="col">ผู้สั่ง</th>
                 <th scope="col">อาหารที่สั่ง</th>
                 <th scope="col">จำนวน</th>
+                <th scope="col">คำขอเพิ่มเติม</th>
                 <th scope="col">เวลานัดรับ</th>
                 <th scope="col">สถานะ</th>
                 <th scope="col">คำสั่ง</th>
@@ -32,19 +34,26 @@ My Restaurant
             {% for order in orders %}
             <tr>
                 <td>{{ order.order_id }}</td>
-                <td>{{ order.menu_name }}
+                <td>{{ order.username }}</td>
+                <td>{{ order.menu_name }}</td>
                 <td>{{ order.quantity }}</td>
+                <td>{{ order.comment }}</td>
                 <td>{{ order.receive_datetime|date:"d/m/y H:i" }}น.</td>
                 <td>{{ order.order_status }}</td>
                 <td>
-                    {% if order.order_status == "cancelled" %}
-                    <a href="{% url 'done_order' order.order_id %}" role="button" class="btn btn-danger">เอาออก</a>
+                    {% if order.order_status == "ongoing" %}
+                    <a href="{% url 'ready_order' order.order_id %}" role="button" class="btn btn-primary">พร้อมเสริฟ</a>
+                    {% elif order.order_status == "ready" %}
+                    <a href="{% url 'done_order' order.order_id %}" role="button" class="btn btn-success">จัดส่งแล้ว</a>
                     {% endif %}
+                    <a href="{% url 'cancel_order' order.order_id %}" role="button" class="btn btn-danger">ไม่สามารถทำได้</a>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+
 </div>
 
 

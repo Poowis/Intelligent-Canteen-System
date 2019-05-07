@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import permission_required, login_required
 from .forms import *
-from datetime import date
+from datetime import date, datetime, time
 from django.db.models import Count
 
 # Create your views here.
@@ -51,7 +51,16 @@ def update_my_profile(request):
 @login_required
 def my_orders(request):
     context = {
-        "orders": Order.objects.filter(user_id=request.user).exclude(order_status="done")
+        "orders": Order.objects.raw('''
+        select *
+        from main_order_menu om
+        join main_menu m
+        on (om.menu_id_id = m.menu_id)
+        join (select order_id, user_id_id
+        from main_order
+        where user_id_id = %d and order_status != "done") as o
+        on (om.order_id_id = o.order_id)
+        '''%(request.user.id))
     }
     return render(request, "main/my_orders.html", context=context)
 
@@ -59,7 +68,16 @@ def my_orders(request):
 @login_required
 def my_history(request):
     context = {
-        "orders": Order.objects.filter(user_id=request.user, order_status="done")
+        "orders": Order.objects.raw('''
+        select *
+        from main_order_menu om
+        join main_menu m
+        on (om.menu_id_id = m.menu_id)
+        join (select order_id, user_id_id
+        from main_order
+        where user_id_id = %d and order_status = "done") as o
+        on (om.order_id_id = o.order_id)
+        '''%(request.user.id))
     }
     return render(request, "main/my_history.html", context=context)
 
@@ -137,6 +155,8 @@ def restaurants(request):
     user_id = request.user.id
     if not user_id:
         user_id = 0
+    form = SearchForm(request.GET)
+    form.is_valid()
     context = {
         "restaurants": Restaurant.objects.raw('''select *
         from main_restaurant r
@@ -144,7 +164,9 @@ def restaurants(request):
 				from main_user_restaurant
                 where user_id_id = %d) as u
         on (r.res_id = u.res_id_id)
-        order by status desc, res_id''' % (user_id))
+        where r.res_name like "%s%s%s"
+        order by status desc, res_id''' % (user_id, '%%', form.cleaned_data["search"], '%%')),
+        "form": form
     }
     return render(request, "main/restaurants.html", context=context)
 
@@ -192,6 +214,8 @@ def menus(request):
     user_id = request.user.id
     if not user_id:
         user_id = 0
+    form = SearchForm(request.GET)
+    form.is_valid()
     context = {
         "menus": Menu.objects.raw('''select *
         from main_menu m
@@ -199,7 +223,9 @@ def menus(request):
 				from main_user_menu
                 where user_id_id = %d) as u
         on (m.menu_id = u.menu_id_id)
-        order by status desc, menu_id''' % (user_id))
+        where m.menu_name like "%s%s%s"
+        order by status desc, menu_id''' % (user_id, '%%', form.cleaned_data["search"], '%%')),
+        "form": form
     }
     return render(request, "main/menus.html", context=context)
 
@@ -240,6 +266,7 @@ def my_restaurant(request):
         res = Staff.objects.get(pk=request.user).res_id
         if res:
             context["restaurant"] = res
+            context["voted"] = request.user in res.users.all()
         else:
             context["warning"] = "You do not work for Restauarant yet"
         return render(request, "main/my_restaurant.html", context=context)
@@ -311,23 +338,28 @@ def see_congestion(request):
 
 
 @login_required
-def order(request, menu_id):
+def order(request, menu_id, url):
     menu = Menu.objects.get(pk=menu_id)
     if request.method == 'POST':
         form = OrderForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
             order.user_id = request.user
-            form.save()
-            menu.quantity = 10
-            order.menus.add(menu)
-            return redirect('index')
+            order.save()
+            om = Order_menu(order_id=order, menu_id=menu,
+                            quantity=form.cleaned_data["quantity"])
+            om.save()
+            return redirect(url)
     else:
-        form = OrderForm()
+        form = OrderForm(initial={'quantity': 1, "receive_datetime": datetime.now()})
     context = {
         "menu": menu,
-        "form": form
+        "form": form,
+        "extras": Extra.objects.filter(menu_id=menu_id)
     }
+    
+    now = datetime.combine(date.today(), time(10, 10))
+    print("asda", now)
     return render(request, 'main/order.html', context=context)
 
 
@@ -348,7 +380,7 @@ def sell_report(request):
             on (o.order_id = om.order_id_id)
             where o.order_status = "done" and r.res_id = %d
             group by m.menu_id
-            '''%(res)),
+            ''' % (res)),
             "month": Menu.objects.raw('''
             select menu_id, menu_name, sum(om.quantity) "quantity"
             from main_restaurant r
@@ -358,9 +390,9 @@ def sell_report(request):
             on (m.menu_id = om.menu_id_id)
             join main_order o
             on (o.order_id = om.order_id_id)
-            where o.order_status = "done" and o.receive_datetime like "%s-%02d-%s"
+            where o.order_status = "done" and o.receive_datetime like "%d-%02d-%s" and r.res_id = %d
             group by m.menu_id
-            ''' % ('%%', today.month, '%%')),
+            ''' % (today.year, today.month, '%%', res)),
             "year": Menu.objects.raw('''
             select menu_id, menu_name, sum(om.quantity) "quantity"
             from main_restaurant r
@@ -370,9 +402,9 @@ def sell_report(request):
             on (m.menu_id = om.menu_id_id)
             join main_order o
             on (o.order_id = om.order_id_id)
-            where o.order_status = "done" and o.receive_datetime like "%d-%s"
+            where o.order_status = "done" and o.receive_datetime like "%d-%s" and r.res_id = %d
             group by m.menu_id
-            ''' % (today.year, '%%')),
+            ''' % (today.year, '%%', res)),
         }
         return render(request, 'main/sell_report.html', context=context)
     return redirect("index")
@@ -380,9 +412,68 @@ def sell_report(request):
 
 @login_required
 def my_restaurant_orders(request):
-    return None
+    if request.user.user_type == "staff":
+        res = Staff.objects.get(pk=request.user).res_id_id
+        context = {
+            "orders": Order.objects.raw('''
+            select order_id, username, menu_name, quantity, comment, receive_datetime, order_status
+            from main_restaurant r
+            join main_menu m
+            on (r.res_id = m.res_id_id)
+            join main_order_menu om
+            on (m.menu_id = om.menu_id_id)
+            join main_order o
+            on (o.order_id = om.order_id_id)
+            join main_user u
+            on (u.id = o.user_id_id)
+            where r.res_id = %d and o.order_status = "ongoing"or o.order_status = "ready"
+            order by receive_datetime, menu_name
+            '''%(res))
+        }
+        return render(request, 'main/my_restaurant_orders.html', context=context)
+    return redirect("index")
 
+@login_required
+def cancel_order(request, order_id):
+    order = Order.objects.get(pk=order_id)
+    order.order_status = "cancelled"
+    order.save()
+    return redirect("my_restaurant_orders")
+
+@login_required
+def done_order(request, order_id):
+    order = Order.objects.get(pk=order_id)
+    order.order_status = "done"
+    order.save()
+    return redirect("my_restaurant_orders")
+
+@login_required
+def ready_order(request, order_id):
+    order = Order.objects.get(pk=order_id)
+    order.order_status = "ready"
+    order.save()
+    return redirect("my_restaurant_orders")
 
 @login_required
 def add_menu(request):
-    return None
+    if request.method == 'POST':
+        form = AddMenuForm(request.POST)
+        user_id = request.user.id
+        staff = Staff.objects.get(user_id=user_id)
+        res = Restaurant.objects.get(res_id=staff.res_id_id)
+
+        if form.is_valid():
+            Menu.objects.create(
+                res_id=res,
+                menu_name=form.cleaned_data.get('menu_name'),
+                description=form.cleaned_data.get('description'),
+                prepare_time=form.cleaned_data.get('prepare_time'),
+                image_path=form.cleaned_data.get('image_path'),
+                price=form.cleaned_data.get('price'),
+                amount=form.cleaned_data.get('amount'),
+                status=form.cleaned_data.get('status'),
+            )
+            return redirect('add_menu')
+    else:
+        form = AddMenuForm()
+    return render(request, 'main/add_menu.html', {'form': form})

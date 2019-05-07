@@ -47,10 +47,10 @@ class ReportForm(forms.ModelForm):
 
 
 class OrderForm(forms.ModelForm):
-
+    quantity = forms.IntegerField(min_value=1)
     class Meta:
         model = Order
-        fields = ['receive_datetime', 'comment']
+        fields = ['receive_datetime', "quantity", 'comment']
 
 
 class AddMenuForm(forms.ModelForm):
@@ -59,3 +59,6 @@ class AddMenuForm(forms.ModelForm):
         model = Menu
         fields = ['menu_name', 'description', 'prepare_time',
                   'image_path', 'price', 'amount', 'status']
+
+class SearchForm(forms.Form):
+    search = forms.CharField(required=False)

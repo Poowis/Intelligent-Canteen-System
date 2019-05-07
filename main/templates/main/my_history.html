@@ -16,16 +16,29 @@ My Restaurant
 {% block content %}
 
 <div class="container">
-    {% for order in orders %}
-
-    {{ order.order_id }}
-
-    {% for menu in order.menus.all %}
-    {{ menu.menu_id }}
-    {% endfor%}
-
-    {% endfor%}
-
+    <h4>My History</h4>
+    <table class="table table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">รหัสออเดอร์</th>
+                <th scope="col">อาหารที่สั่ง</th>
+                <th scope="col">จำนวน</th>
+                <th scope="col">เวลานัดรับ</th>
+                <th scope="col">สถานะ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.order_id }}</td>
+                <td>{{ order.menu_name }}
+                <td>{{ order.quantity }}</td>
+                <td>{{ order.receive_datetime|date:"d/m/y H:i" }}น.</td>
+                <td>{{ order.order_status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 

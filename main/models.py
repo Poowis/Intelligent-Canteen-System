@@ -122,7 +122,7 @@ class Extra(models.Model):
 class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
     create_datetime = models.DateTimeField(auto_now=True)
-    receive_datetime = models.DateTimeField(null=True, blank=True)
+    receive_datetime = models.DateTimeField(null=True, blank=False)
     comment = models.TextField(null=True, blank=True)
     total_price = models.FloatField(null=True, blank=True)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)

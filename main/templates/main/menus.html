@@ -1,5 +1,5 @@
 {% extends "main/base.html" %}
-
+{% load crispy_forms_tags %}
 {% block title %}
 Index
 {% endblock title %}
@@ -18,6 +18,14 @@ Index
 <div class="container">
 
     <h2>All Menus</h2>
+    <form action="" method="get">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" name="search">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
     <div class="row">
         {% for menu in menus %}
         <div class="col-xl-3 col-lg-4 col-md-6">
@@ -36,6 +44,8 @@ Index
                         {% else %}
                         <a href="{% url 'vote_menu' menu.menu_id request.path %}">Vote</a>
                         {% endif %}
+                        <a href="{% url 'order' menu.menu_id request.path %}" role="button"
+                            class="btn btn-warning">Order</a>
                     </p>
                 </div>
             </div>

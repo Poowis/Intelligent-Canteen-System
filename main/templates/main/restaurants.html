@@ -1,5 +1,5 @@
 {% extends "main/base.html" %}
-
+{% load crispy_forms_tags %}
 {% block title %}
 All Restaurants
 {% endblock title %}
@@ -17,7 +17,14 @@ All Restaurants
 
 <div class="container">
     <h2>All Restaurants</h2>
-
+    <form action="" method="get">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" name="search">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
     {% for res in restaurants %}
     <div class="restaurants card">
         <div class="row no-gutters">

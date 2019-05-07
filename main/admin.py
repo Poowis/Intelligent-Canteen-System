@@ -20,7 +20,15 @@ class UserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAdmin)
-admin.site.register(Staff)
+
+
+class StaffAdmin(admin.ModelAdmin):
+    list_display = ['user_id', "res_id"]
+    list_per_page = 15
+    list_filter = ["res_id"]
+
+
+admin.site.register(Staff, StaffAdmin)
 
 
 class ReportAdmin(admin.ModelAdmin):

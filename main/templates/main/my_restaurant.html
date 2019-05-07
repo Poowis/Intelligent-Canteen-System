@@ -17,18 +17,91 @@ My Restaurant
 
 <div class="container">
     {% if restaurant %}
-    <h4>My Restaurant {{ restaurant.status }}</h4>
-    <a href="{% url 'update_my_restaurant' %}">Update</a>
-    {% if restaurant.status == "open" %}
-    <a href="{% url 'close_my_restaurant' %}">Close</a>
-    {% else %}
-    <a href="{% url 'open_my_restaurant' %}">Open</a>
-    {% endif %}
-    
+    <h4>My Restaurant</h4>
+    <div class="row no-gutters">
+        <div class="col-xl-4">
+            <div class="img equal" style="background-image: url('{{ restaurant.image_path.url }}')">
+            </div>
+        </div>
+        <div class="col-xl-8">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-9">
+                        <h4 class="card-title">{{ restaurant.res_name }}</h4>
+                    </div>
+                    <div class="col-3">
+                        <h5 class="card-text text-right">
+                            {% if restaurant.status == "open" %}
+                            <a href="{% url 'close_my_restaurant' %}">Close</a>
+                            {% else %}
+                            <a href="{% url 'open_my_restaurant' %}">Open</a>
+                            {% endif %}
+                        </h5>
+                    </div>
+                    <div class="col-12">
+                        <p class="card-text">
+                            <b>สถานะปัจจุบัน</b>
+                            
+                            {{ restaurant.status }}
+                            <br>
+                            {% if restaurant.Sunday or restaurant.Monday or restaurant.Tuesday or restaurant.Wednesday or restaurant.Thursday or restaurant.Friday or restaurant.Saturday %}
+                            <b>วันเปิดทำการ </b>
+                            {% if restaurant.Sunday %}
+                            อา
+                            {% endif %}
+                            {% if restaurant.Monday %}
+                            จ
+                            {% endif %}
+                            {% if restaurant.Tuesday %}
+                            อ
+                            {% endif %}
+                            {% if restaurant.Wednesday %}
+                            พ
+                            {% endif %}
+                            {% if restaurant.Thursday %}
+                            พฤ
+                            {% endif %}
+                            {% if restaurant.Friday %}
+                            ศ
+                            {% endif %}
+                            {% if restaurant.Saturday %}
+                            ส
+                            {% endif %}
+                            <br>
+                            {% endif %}
+
+                            {% if restaurant.open_time and restaurant.close_time %}
+                            <b>เวลาเปิดทำการ</b> {{ restaurant.open_time|date:"H:i" }}น. ถึง
+                            {{ restaurant.close_time|date:"H:i" }}น.<br>
+                            {% elif restaurant.open_time %}
+                            <b>เวลาเปิดทำการ</b> {{ restaurant.open_time|date:"H:i" }}น. เป็นต้นไป<br>
+                            {% elif restaurant.close_time %}
+                            <b>เวลาเปิดทำการ</b> ถึง {{ restaurant.close_time|date:"H:i" }}น.<br>
+                            {% endif %}
+                            {{ restaurant.description }}
+                        </p>
+                        {{ restaurant.rating }}
+                        {% if voted %}
+                        <a href="{% url 'unvote_restaurant' restaurant.pk request.path %}">Voted</a>
+                        {% else %}
+                        <a href="{% url 'vote_restaurant' restaurant.pk request.path %}">Vote</a>
+                        {% endif %}
+                        <br>
+                        <a href="{% url 'update_my_restaurant' %}">Update Restaurant</a>
+                        <br>
+                        <a href="{% url 'sell_report' %}">See Report</a>
+                        <br>
+                        <a href="{% url 'my_restaurant_orders' %}">Res orders</a>
+                        <br>
+                        <a href="{% url 'add_menu' %}">Add Menu</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     {% else %}
     <h6>Try contacting admin for help</h6>
     {% endif %}
-
 </div>
 
 
