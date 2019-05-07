@@ -102,10 +102,7 @@ All Restaurants
             </div>
             {% if not forloop.counter0|divisibleby:2 %}
             <div class="col-xl-4 d-none d-xl-block">
-                <div class="col-xl-4 d-xl-none">
-                    <div class="img equal" style="background-image: url('{{ res.image_path.url }}')">
-                    </div>
-                </div>
+                <div class="img equal" style="background-image: url('{{ res.image_path.url }}')"></div>
             </div>
             {% endif %}
         </div>
