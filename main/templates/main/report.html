@@ -1,7 +1,7 @@
 {% extends "main/base.html" %}
 {% load crispy_forms_tags %}
 {% block title %}
-My Restaurant
+Report
 {% endblock title %}
 
 {% block before_script %}
@@ -16,6 +16,7 @@ My Restaurant
 {% block content %}
 
 <div class="container">
+    <h4>Report us</h4>
     <form action="" method="POST">
         {% csrf_token %}
         {{ form|crispy }}

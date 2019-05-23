@@ -16,15 +16,21 @@ All Restaurants
 {% block content %}
 
 <div class="container">
-    <h2>All Restaurants</h2>
-    <form action="" method="get">
-        <div class="input-group mb-3">
-            <input type="text" class="form-control" name="search">
-            <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="submit">Search</button>
-            </div>
+    <div class="row">
+        <div class="col-xl-8">
+            <h2>All Restaurants</h2>
         </div>
-    </form>
+        <div class="col-xl-4">
+            <form action="" method="get">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" name="search" value="{{ form.search.value|default_if_none:'' }}" placeholder="Search for Restaurant">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
     {% for res in restaurants %}
     <div class="restaurants card">
         <div class="row no-gutters">
@@ -92,9 +98,9 @@ All Restaurants
                         <div class="col-4">
                             {{ res.rating }}
                             {% if res.user_id_id %}
-                            <a href="{% url 'unvote_restaurant' res.res_id request.path %}">Voted</a>
+                            <a href="{% url 'unvote_restaurant' res.res_id request.path %}" class="btn btn-secondary">Voted</a>
                             {% else %}
-                            <a href="{% url 'vote_restaurant' res.res_id request.path %}">Vote</a>
+                            <a href="{% url 'vote_restaurant' res.res_id request.path %}" class="btn btn-primary">Vote</a>
                             {% endif %}
                         </div>
                     </div>

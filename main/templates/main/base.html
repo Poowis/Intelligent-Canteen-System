@@ -20,7 +20,7 @@
 
     <nav id="navbar" class="navbar navbar-expand-lg navbar-light color-bg-01 fixed-top" v-show="top<=10">
         <a class="navbar-brand" href="{% url 'index' %}">
-            <img src="https://via.placeholder.com/30" width="30" height="30" class="d-inline-block align-top" alt="">
+            <i class="material-icons">home</i>
             Home
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -76,30 +76,20 @@
         </div>
     </nav>
 
-    {% if alert or warning or confirm %}
+    {% if messages %}
     <div id="popup" onclick="deactive()">
         <div class="background" @click="deactive"></div>
-        {% if alert %}
-        <div class="message alert card border-danger">
-            <h3>{{ alert }}</h3>
-        </div>
-        {% elif warning %}
-        <div class="message alert card border-warning">
-            <h3>
-                {{ warning }}
-            </h3>
-        </div>
-        {% elif confirm %}
-        <div class="message alert card border-success">
-            <h3>
-                {{ confirm }}
-            </h3>
-        </div>
-        {% endif %}
+        <ul class="messages">
+            {% for message in messages %}
+            <div class="message alert card {{ message.tags }}">
+                <h3>{{ message }}</h3>
+            </div>
+            {% endfor %}
+        </ul>
     </div>
     {% endif %}
 
-    <div id="content">
+    <div id="content" class="color-bg-03">
         {% block content %}{% endblock content %}
     </div>
 

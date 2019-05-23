@@ -16,7 +16,22 @@ Canteen Congestion
 {% block content %}
 
 <div class="container">
-    <h4>Canteen Congestion</h4>
+    <div class="row">
+        <div class="col-xl-8">
+            <h2>Canteen Congestion</h2>
+        </div>
+        <div class="col-xl-4">
+            <form action="" method="get">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" name="search"
+                        value="{{ form.search.value|default_if_none:'' }}" placeholder="Search for Restaurant">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="submit">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
     <table class="table table-striped">
         <thead class="thead-dark">
             <tr>

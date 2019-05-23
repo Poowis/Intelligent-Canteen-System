@@ -1,7 +1,7 @@
 {% extends "main/base.html" %}
 
 {% block title %}
-My Restaurant
+My Orders
 {% endblock title %}
 
 {% block before_script %}
@@ -16,7 +16,7 @@ My Restaurant
 {% block content %}
 
 <div class="container">
-    <h4>My Orders</h4>
+    <h2>My Orders</h2>
     <table class="table table-striped">
         <thead class="thead-dark">
             <tr>
@@ -38,7 +38,7 @@ My Restaurant
                 <td>{{ order.order_status }}</td>
                 <td>
                     {% if order.order_status == "cancelled" %}
-                    <a href="{% url 'done_order' order.order_id %}" role="button" class="btn btn-danger">เอาออก</a>
+                    <a href="{% url 'done_order' order.order_id request.path %}" role="button" class="btn btn-danger">เอาออก</a>
                     {% endif %}
                 </td>
             </tr>

@@ -1,7 +1,7 @@
 {% extends "main/base.html" %}
 
 {% block title %}
-Canteen Congestion
+My Restaurant Orders
 {% endblock title %}
 
 {% block before_script %}
@@ -16,7 +16,7 @@ Canteen Congestion
 {% block content %}
 
 <div class="jumbotron-fluid p-2">
-    <h4>My Restaurant Orders</h4>
+    <h2>My Restaurant Orders</h2>
     <table class="table table-striped">
         <thead class="thead-dark">
             <tr>
@@ -42,11 +42,11 @@ Canteen Congestion
                 <td>{{ order.order_status }}</td>
                 <td>
                     {% if order.order_status == "ongoing" %}
-                    <a href="{% url 'ready_order' order.order_id %}" role="button" class="btn btn-primary">พร้อมเสริฟ</a>
+                    <a href="{% url 'ready_order' order.order_id request.path %}" role="button" class="btn btn-primary">พร้อมเสริฟ</a>
                     {% elif order.order_status == "ready" %}
-                    <a href="{% url 'done_order' order.order_id %}" role="button" class="btn btn-success">จัดส่งแล้ว</a>
+                    <a href="{% url 'done_order' order.order_id request.path %}" role="button" class="btn btn-success">จัดส่งแล้ว</a>
                     {% endif %}
-                    <a href="{% url 'cancel_order' order.order_id %}" role="button" class="btn btn-danger">ไม่สามารถทำได้</a>
+                    <a href="{% url 'cancel_order' order.order_id request.path %}" role="button" class="btn btn-danger">ไม่สามารถทำได้</a>
                 </td>
             </tr>
             {% endfor %}

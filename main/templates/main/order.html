@@ -1,9 +1,27 @@
 {% extends "main/base.html" %}
 {% load crispy_forms_tags %}
+
+{% block title %}
+Order
+{% endblock title %}
+
 {% block content %}
 <div class="container">
-    {{ menu }}
-    {{ menu.extra }}
+    <h2>Order</h2>
+    <h3>{{ menu }}</h3>
+
+    <br>
+    <b>เพิ่มเติม</b>
+    <br>
+    {% for extra in extras %}
+    -{{ extra.extra_name }}
+    {% if extra.extra_price %}
+    ({{ extra.extra_price }}บาท)
+    {% endif %}
+    <br>
+    {% endfor %}
+
+
 
     <form method="POST">
         {% csrf_token %}

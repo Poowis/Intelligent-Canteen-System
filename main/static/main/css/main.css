@@ -36,8 +36,6 @@
 }
 #content {
     margin-top: 56px;
-    padding-top: 8px;
-    padding-bottom: 8px;
 }
 
 .img {
@@ -47,14 +45,34 @@
 }
 
 .carousel-item .img {
-    height: 500px;
+    height: 1080px;
 }
 
 .card {
-    margin-top: 8px;
+    margin-bottom: 16px;
     border-radius: 1em;
     overflow: hidden;
 }
 
+.container, .jumbotron-fluid {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    background-color: white;
+}
 
+.info {
+    border: 5px solid black
+}
+
+.success {
+    border: 5px solid green
+}
+
+.warning {
+    border: 5px solid red
+}
+
+.error {
+    border: 5px solid yellow
+}
 

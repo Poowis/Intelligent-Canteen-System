@@ -1,25 +1,70 @@
 {% extends "main/base.html" %}
 {% load crispy_forms_tags %}
+{% block title %}
+Add Menu
+{% endblock title %}
+
+{% block before_script %}
+{% endblock before_script %}
+
+{% block after_script %}
+<script src="{% static 'main/js/add_menu.js' %}"></script>
+{% endblock after_script %}
+
+{% block css %}
+{% endblock css %}
+
 {% block content %}
-    <div class="container">
-        <div class="content-section">
-            <div class="media">
-                <div class="media-body">
-                    <h2 class="account-heading"></h2>
+<div class="container">
+    <h2>Add Menu</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-xl-10">
+                {{ form.menu_name|as_crispy_field }}
+            </div>
+            <div class="col-xl-2">
+                {{ form.status|as_crispy_field }}
+            </div>
+            <div class="col-xl-6">
+                {{ form.prepare_time|as_crispy_field }}
+            </div>
+            <div class="col-xl-6">
+                {{ form.price|as_crispy_field }}
+            </div>
+            <div class="col-xl-6">
+                {{ form.amount|as_crispy_field }}
+            </div>
+            <div class="col-12">
+                    {{ form.description|as_crispy_field }}
                 </div>
+            <div class="col-12">
+                {{ form.image_path|as_crispy_field }}
+            </div>
+
+        </div>
+
+        <h3>Add Extras</h3>
+        <div id="extras">
+            {{ formset.management_form }}
+            <div class="row multiField">
+                {% for form in formset %}
+
+                <div class="col-xl-5">
+                    {{ form.extra_name|as_crispy_field }}
+                </div>
+                <div class="col-xl-5">
+                    {{ form.extra_description|as_crispy_field }}
+                </div>
+                <div class="col-xl-2">
+                    {{ form.extra_price|as_crispy_field }}
+                </div>
+                {% endfor %}
             </div>
         </div>
-    <form method="POST">
-            {% csrf_token %}
-            <fieldset class="form-group">
-                <legend class="border-bottom mb-4">-- Add Menu --</legend>
-                {{ form|crispy }}
-            </fieldset>
-            <div class="form-group">
-                <button class="btn btn-outline-info" type="submit">order</button>
-            </div>
-        </form>
-    </div>
+        <button class="btn btn-outline-info" onclick="addExtra()" type="button">Add Extra</button>
+        <button class="btn btn-outline-info" type="submit">Add Menu</button>
+    </form>
+    
+</div>
 {% endblock content %}
-
-

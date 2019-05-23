@@ -1,7 +1,7 @@
 {% extends "main/base.html" %}
 
 {% block title %}
-My Restaurant
+My Profile
 {% endblock title %}
 
 {% block before_script %}
@@ -16,9 +16,9 @@ My Restaurant
 {% block content %}
 
 <div class="container">
-    <h4 class="float-left">My Profile</h4>
+    <h2 class="float-left">My Profile</h2>
     <a href="{% url 'update_my_profile' %}" role="button" class="btn btn-primary float-right">update</a>
-    <img src="{{ user.image_path.url }}" alt="">
+    <img src="{{ user.image_path.url }}" class="w-100" alt="">
     <table class="table table-striped">
         <tbody>
             <tr>

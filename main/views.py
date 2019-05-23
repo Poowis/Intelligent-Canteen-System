@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import permission_required, login_required
 from .forms import *
 from datetime import date, datetime, time
 from django.db.models import Count
+from django.contrib import messages
+from django.forms import modelformset_factory
 
 # Create your views here.
 
@@ -32,19 +34,11 @@ def update_my_profile(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            # if user.user_type == "staff":
-            #     staff_form = StaffForm(request.POST)
-            #     if staff_form.is_valid():
-            #         staff = staff_form.save(commit=False)
-            #         staff.user_id = user
-            #         staff.save()
             return redirect('index')
         else:
             context["form"] = form
-            # context["staff_form"] = staff_form
     else:
         context["form"] = RegisterForm(instance=request.user)
-        # context["staff_form"] = StaffForm()
     return render(request, "main/update_my_profile.html", context=context)
 
 
@@ -60,7 +54,7 @@ def my_orders(request):
         from main_order
         where user_id_id = %d and order_status != "done") as o
         on (om.order_id_id = o.order_id)
-        '''%(request.user.id))
+        ''' % (request.user.id))
     }
     return render(request, "main/my_orders.html", context=context)
 
@@ -77,7 +71,7 @@ def my_history(request):
         from main_order
         where user_id_id = %d and order_status = "done") as o
         on (om.order_id_id = o.order_id)
-        '''%(request.user.id))
+        ''' % (request.user.id))
     }
     return render(request, "main/my_history.html", context=context)
 
@@ -118,23 +112,16 @@ def my_register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
-            # if user.user_type == "staff":
-            #     staff_form = StaffForm(request.POST)
-            #     if staff_form.is_valid():
-            #         staff = staff_form.save(commit=False)
-            #         staff.user_id = user
-            #         staff.save()
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('index')
         else:
             context["form"] = form
-            # context["staff_form"] = staff_form
     else:
         context["form"] = RegisterForm()
-        # context["staff_form"] = StaffForm()
     return render(request, "main/register.html", context=context)
 
 
+@login_required
 def report(request):
     context = {}
     if request.method == "POST":
@@ -267,9 +254,21 @@ def my_restaurant(request):
         if res:
             context["restaurant"] = res
             context["voted"] = request.user in res.users.all()
+            context["menus"] = Menu.objects.raw('''
+        select *
+        from main_menu m
+        left outer join (select menu_id_id, user_id_id
+				from main_user_menu
+                where user_id_id = %d) as u
+        on (m.menu_id = u.menu_id_id)
+        where m.res_id_id = %d
+        order by menu_id''' % (request.user.id, res.pk))
+            return render(request, "main/my_restaurant.html", context=context)
         else:
-            context["warning"] = "You do not work for Restauarant yet"
-        return render(request, "main/my_restaurant.html", context=context)
+            messages.error(
+                request, "คุณยังไม่ถูกเชื่อมโยงกับร้านใด ลองติดต่อแอดมินเพื่อขอความช่วยเหลือ")
+            return redirect("index")
+    messages.warning(request, "เฉพาะผู้ที่เป็นพนักงงานของโรงอาหารเท่านั้น")
     return redirect("index")
 
 
@@ -281,7 +280,13 @@ def open_my_restaurant(request):
         if res:
             res.status = "open"
             res.save()
-    return redirect("my_restaurant")
+            return redirect("my_restaurant")
+        else:
+            messages.error(
+                request, "คุณยังไม่ถูกเชื่อมโยงกับร้านใด ลองติดต่อแอดมินเพื่อขอความช่วยเหลือ")
+            return redirect("index")
+    messages.warning(request, "เฉพาะผู้ที่เป็นพนักงงานของโรงอาหารเท่านั้น")
+    return redirect("index")
 
 
 @login_required
@@ -292,7 +297,13 @@ def close_my_restaurant(request):
         if res:
             res.status = "close"
             res.save()
-    return redirect("my_restaurant")
+            return redirect("my_restaurant")
+        else:
+            messages.error(
+                request, "คุณยังไม่ถูกเชื่อมโยงกับร้านใด ลองติดต่อแอดมินเพื่อขอความช่วยเหลือ")
+            return redirect("index")
+    messages.warning(request, "เฉพาะผู้ที่เป็นพนักงงานของโรงอาหารเท่านั้น")
+    return redirect("index")
 
 
 @login_required
@@ -312,12 +323,17 @@ def update_my_restaurant(request):
             else:
                 context["form"] = RestaurantForm(instance=res)
         else:
-            context["warning"] = "You do not work for Restauarant yet"
+            messages.error(
+                request, "คุณยังไม่ถูกเชื่อมโยงกับร้านใด ลองติดต่อแอดมินเพื่อขอความช่วยเหลือ")
+            return redirect("index")
         return render(request, "main/update_my_restaurant.html", context=context)
+    messages.warning(request, "เฉพาะผู้ที่เป็นพนักงงานของโรงอาหารเท่านั้น")
     return redirect("index")
 
 
 def see_congestion(request):
+    form = SearchForm(request.GET)
+    form.is_valid()
     context = {
         "congestions": Restaurant.objects.raw('''
         SELECT res_id, res_name, COUNT(order_id) number, r.status
@@ -331,8 +347,10 @@ def see_congestion(request):
             WHERE o.order_status = "ongoing") as e
         on (r.res_id = e.res_id_id)
         group by res_id
+        having res_name like "%s%s%s"
         order by status desc, res_id
-        ''')
+        ''' % ('%%', form.cleaned_data["search"], '%%')),
+        "form": form
     }
     return render(request, "main/see_congestion.html", context=context)
 
@@ -351,15 +369,13 @@ def order(request, menu_id, url):
             om.save()
             return redirect(url)
     else:
-        form = OrderForm(initial={'quantity': 1, "receive_datetime": datetime.now()})
+        form = OrderForm(
+            initial={'quantity': 1, "receive_datetime": datetime.now()})
     context = {
         "menu": menu,
         "form": form,
         "extras": Extra.objects.filter(menu_id=menu_id)
     }
-    
-    now = datetime.combine(date.today(), time(10, 10))
-    print("asda", now)
     return render(request, 'main/order.html', context=context)
 
 
@@ -368,45 +384,51 @@ def sell_report(request):
     today = date.today()
     if request.user.user_type == "staff":
         res = Staff.objects.get(pk=request.user).res_id_id
-        context = {
-            "all": Menu.objects.raw('''
-            select menu_id, menu_name, sum(om.quantity) "quantity"
-            from main_restaurant r
-            join main_menu m
-            on (r.res_id = m.res_id_id)
-            join main_order_menu om
-            on (m.menu_id = om.menu_id_id)
-            join main_order o
-            on (o.order_id = om.order_id_id)
-            where o.order_status = "done" and r.res_id = %d
-            group by m.menu_id
-            ''' % (res)),
-            "month": Menu.objects.raw('''
-            select menu_id, menu_name, sum(om.quantity) "quantity"
-            from main_restaurant r
-            join main_menu m
-            on (r.res_id = m.res_id_id)
-            join main_order_menu om
-            on (m.menu_id = om.menu_id_id)
-            join main_order o
-            on (o.order_id = om.order_id_id)
-            where o.order_status = "done" and o.receive_datetime like "%d-%02d-%s" and r.res_id = %d
-            group by m.menu_id
-            ''' % (today.year, today.month, '%%', res)),
-            "year": Menu.objects.raw('''
-            select menu_id, menu_name, sum(om.quantity) "quantity"
-            from main_restaurant r
-            join main_menu m
-            on (r.res_id = m.res_id_id)
-            join main_order_menu om
-            on (m.menu_id = om.menu_id_id)
-            join main_order o
-            on (o.order_id = om.order_id_id)
-            where o.order_status = "done" and o.receive_datetime like "%d-%s" and r.res_id = %d
-            group by m.menu_id
-            ''' % (today.year, '%%', res)),
-        }
-        return render(request, 'main/sell_report.html', context=context)
+        if res:
+            context = {
+                "all": Menu.objects.raw('''
+                select menu_id, menu_name, sum(om.quantity) "quantity"
+                from main_restaurant r
+                join main_menu m
+                on (r.res_id = m.res_id_id)
+                join main_order_menu om
+                on (m.menu_id = om.menu_id_id)
+                join main_order o
+                on (o.order_id = om.order_id_id)
+                where o.order_status = "done" and r.res_id = %d
+                group by m.menu_id
+                ''' % (res)),
+                "month": Menu.objects.raw('''
+                select menu_id, menu_name, sum(om.quantity) "quantity"
+                from main_restaurant r
+                join main_menu m
+                on (r.res_id = m.res_id_id)
+                join main_order_menu om
+                on (m.menu_id = om.menu_id_id)
+                join main_order o
+                on (o.order_id = om.order_id_id)
+                where o.order_status = "done" and o.receive_datetime like "%d-%02d-%s" and r.res_id = %d
+                group by m.menu_id
+                ''' % (today.year, today.month, '%%', res)),
+                "year": Menu.objects.raw('''
+                select menu_id, menu_name, sum(om.quantity) "quantity"
+                from main_restaurant r
+                join main_menu m
+                on (r.res_id = m.res_id_id)
+                join main_order_menu om
+                on (m.menu_id = om.menu_id_id)
+                join main_order o
+                on (o.order_id = om.order_id_id)
+                where o.order_status = "done" and o.receive_datetime like "%d-%s" and r.res_id = %d
+                group by m.menu_id
+                ''' % (today.year, '%%', res)),
+            }
+            return render(request, 'main/sell_report.html', context=context)
+        else:
+            messages.error(
+                request, "คุณยังไม่ถูกเชื่อมโยงกับร้านใด ลองติดต่อแอดมินเพื่อขอความช่วยเหลือ")
+            return redirect("index")
+    messages.warning(request, "เฉพาะผู้ที่เป็นพนักงงานของโรงอาหารเท่านั้น")
     return redirect("index")
 
 
@@ -414,66 +436,167 @@ def sell_report(request):
 def my_restaurant_orders(request):
     if request.user.user_type == "staff":
         res = Staff.objects.get(pk=request.user).res_id_id
-        context = {
-            "orders": Order.objects.raw('''
-            select order_id, username, menu_name, quantity, comment, receive_datetime, order_status
-            from main_restaurant r
-            join main_menu m
-            on (r.res_id = m.res_id_id)
-            join main_order_menu om
-            on (m.menu_id = om.menu_id_id)
-            join main_order o
-            on (o.order_id = om.order_id_id)
-            join main_user u
-            on (u.id = o.user_id_id)
-            where r.res_id = %d and o.order_status = "ongoing"or o.order_status = "ready"
-            order by receive_datetime, menu_name
-            '''%(res))
-        }
-        return render(request, 'main/my_restaurant_orders.html', context=context)
+        if res:
+            context = {
+                "orders": Order.objects.raw('''
+                select order_id, username, menu_name, quantity, comment, receive_datetime, order_status
+                from main_restaurant r
+                join main_menu m
+                on (r.res_id = m.res_id_id)
+                join main_order_menu om
+                on (m.menu_id = om.menu_id_id)
+                join main_order o
+                on (o.order_id = om.order_id_id)
+                join main_user u
+                on (u.id = o.user_id_id)
+                where r.res_id = %d and o.order_status = "ongoing"or o.order_status = "ready"
+                order by receive_datetime, menu_name
+                ''' % (res))
+            }
+            return render(request, 'main/my_restaurant_orders.html', context=context)
+        else:
+            messages.error(
+                request, "คุณยังไม่ถูกเชื่อมโยงกับร้านใด ลองติดต่อแอดมินเพื่อขอความช่วยเหลือ")
+            return redirect("index")
+    messages.warning(request, "เฉพาะผู้ที่เป็นพนักงงานของโรงอาหารเท่านั้น")
     return redirect("index")
 
-@login_required
-def cancel_order(request, order_id):
-    order = Order.objects.get(pk=order_id)
-    order.order_status = "cancelled"
-    order.save()
-    return redirect("my_restaurant_orders")
 
 @login_required
-def done_order(request, order_id):
+def cancel_order(request, order_id, url):
+    if request.user.user_type == "staff":
+        res = Staff.objects.get(pk=request.user).res_id_id
+        if res:
+            order = Order.objects.get(pk=order_id)
+            order.order_status = "cancelled"
+            order.save()
+            return redirect(url)
+        messages.error(
+            request, "คุณยังไม่ถูกเชื่อมโยงกับร้านใด ลองติดต่อแอดมินเพื่อขอความช่วยเหลือ")
+        return redirect("index")
+    messages.warning(request, "เฉพาะผู้ที่เป็นพนักงงานของโรงอาหารเท่านั้น")
+    return redirect("index")
+
+
+@login_required
+def done_order(request, order_id, url):
     order = Order.objects.get(pk=order_id)
     order.order_status = "done"
     order.save()
-    return redirect("my_restaurant_orders")
+    return redirect(url)
+
 
 @login_required
-def ready_order(request, order_id):
-    order = Order.objects.get(pk=order_id)
-    order.order_status = "ready"
-    order.save()
-    return redirect("my_restaurant_orders")
+def ready_order(request, order_id, url):
+    if request.user.user_type == "staff":
+        res = Staff.objects.get(pk=request.user).res_id_id
+        if res:
+            order = Order.objects.get(pk=order_id)
+            order.order_status = "ready"
+            order.save()
+            return redirect(url)
+        messages.error(
+            request, "คุณยังไม่ถูกเชื่อมโยงกับร้านใด ลองติดต่อแอดมินเพื่อขอความช่วยเหลือ")
+        return redirect("index")
+    messages.warning(request, "เฉพาะผู้ที่เป็นพนักงงานของโรงอาหารเท่านั้น")
+    return redirect("index")
+
 
 @login_required
 def add_menu(request):
-    if request.method == 'POST':
-        form = AddMenuForm(request.POST)
-        user_id = request.user.id
-        staff = Staff.objects.get(user_id=user_id)
-        res = Restaurant.objects.get(res_id=staff.res_id_id)
+    ExtraFormSet = modelformset_factory(Extra, exclude=('menu_id',))
+    if request.user.user_type == "staff":
+        res = Staff.objects.get(pk=request.user).res_id
+        if res:
+            if request.method == 'POST':
+                form = MenuForm(request.POST)
+                formset = ExtraFormSet(request.POST)
+                if form.is_valid():
+                    menu = form.save(commit=False)
+                    menu.res_id = res
+                    menu.save()
+                    if formset.is_valid():
+                        for extra_form in formset:
+                            if "extra_name" in extra_form.cleaned_data:
+                                extra = extra_form.save(commit=False)
+                                extra.menu_id = menu
+                                extra.save()
+                        messages.success(
+                            request, "รายการอาหารถูกเพิ่มเรียบร้อย")
+                        return redirect('my_restaurant')
+                context = {
+                    "form": form,
+                    "formset": formset
+                }
+            else:
+                context = {
+                    "form": MenuForm(),
+                    "formset": ExtraFormSet(queryset=Extra.objects.none())
+                }
+            return render(request, 'main/add_menu.html', context=context)
+        else:
+            messages.error(
+                request, "คุณยังไม่ถูกเชื่อมโยงกับร้านใด ลองติดต่อแอดมินเพื่อขอความช่วยเหลือ")
+            return redirect("index")
+    messages.warning(request, "เฉพาะผู้ที่เป็นพนักงงานของโรงอาหารเท่านั้น")
+    return redirect("index")
 
-        if form.is_valid():
-            Menu.objects.create(
-                res_id=res,
-                menu_name=form.cleaned_data.get('menu_name'),
-                description=form.cleaned_data.get('description'),
-                prepare_time=form.cleaned_data.get('prepare_time'),
-                image_path=form.cleaned_data.get('image_path'),
-                price=form.cleaned_data.get('price'),
-                amount=form.cleaned_data.get('amount'),
-                status=form.cleaned_data.get('status'),
-            )
-            return redirect('add_menu')
-    else:
-        form = AddMenuForm()
-    return render(request, 'main/add_menu.html', {'form': form})
+
+@login_required
+def remove_menu(request, menu_id):
+    if request.user.user_type == "staff":
+        res = Staff.objects.get(pk=request.user).res_id
+        if res:
+            menu = Menu.objects.get(pk=menu_id)
+            if menu.res_id == res:
+                menu.delete()
+                messages.success(request, "เมนูถูกลบเรียบร้อย")
+                return redirect("my_restaurant")
+            messages.warning(request, "เมนูนี้ไม่ใช่เมนูของร้านคุณ")
+            return redirect("my_restaurant")
+        else:
+            messages.error(
+                request, "คุณยังไม่ถูกเชื่อมโยงกับร้านใด ลองติดต่อแอดมินเพื่อขอความช่วยเหลือ")
+            return redirect("index")
+    messages.warning(request, "เฉพาะผู้ที่เป็นพนักงงานของโรงอาหารเท่านั้น")
+    return redirect("index")
+
+
+@login_required
+def sell_menu(request, menu_id):
+    if request.user.user_type == "staff":
+        res = Staff.objects.get(pk=request.user).res_id
+        if res:
+            menu = Menu.objects.get(pk=menu_id)
+            if menu.res_id == res:
+                menu.status = "sell"
+                menu.save()
+                return redirect("my_restaurant")
+            messages.warning(request, "เมนูนี้ไม่ใช่เมนูของร้านคุณ")
+            return redirect("my_restaurant")
+        else:
+            messages.error(
+                request, "คุณยังไม่ถูกเชื่อมโยงกับร้านใด ลองติดต่อแอดมินเพื่อขอความช่วยเหลือ")
+            return redirect("index")
+    messages.warning(request, "เฉพาะผู้ที่เป็นพนักงงานของโรงอาหารเท่านั้น")
+    return redirect("index")
+
+
+@login_required
+def not_sell_menu(request, menu_id):
+    if request.user.user_type == "staff":
+        res = Staff.objects.get(pk=request.user).res_id
+        if res:
+            menu = Menu.objects.get(pk=menu_id)
+            if menu.res_id == res:
+                menu.status = "not_sell"
+                menu.save()
+                return redirect("my_restaurant")
+            messages.warning(request, "เมนูนี้ไม่ใช่เมนูของร้านคุณ")
+            return redirect("my_restaurant")
+        else:
+            messages.error(
+                request, "คุณยังไม่ถูกเชื่อมโยงกับร้านใด ลองติดต่อแอดมินเพื่อขอความช่วยเหลือ")
+            return redirect("index")
+    messages.warning(request, "เฉพาะผู้ที่เป็นพนักงงานของโรงอาหารเท่านั้น")
+    return redirect("index")

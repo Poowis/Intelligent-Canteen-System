@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from django.core.exceptions import ValidationError
+import datetime
 
 class User(AbstractUser):
     TYPES = (
@@ -112,17 +113,22 @@ class Extra(models.Model):
     menu_id = models.ForeignKey(Menu, on_delete=models.CASCADE)
     extra_id = models.AutoField(primary_key=True)
     extra_name = models.CharField(max_length=255, null=True, blank=False)
-    extra_description = models.TextField(null=True, blank=False)
+    extra_description = models.TextField(null=True, blank=True)
     extra_price = models.FloatField(null=True, blank=True)
 
     def __str__(self):
-        return '(%s) %s' % (self.menu_id.menu_name, self.extra_description)
+        return '(%s) %s' % (self.menu_id.menu_name, self.extra_name)
+
+
+def validate_receive_datetime(value):
+    if value < datetime.datetime.now():
+        raise ValidationError('ไม่สามารถเลือกวันในอดีตได้')
 
 
 class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
     create_datetime = models.DateTimeField(auto_now=True)
-    receive_datetime = models.DateTimeField(null=True, blank=False)
+    receive_datetime = models.DateTimeField(null=True, blank=False, validators=[validate_receive_datetime])
     comment = models.TextField(null=True, blank=True)
     total_price = models.FloatField(null=True, blank=True)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
