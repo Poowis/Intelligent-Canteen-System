@@ -64,7 +64,8 @@ Restaurant
             {% endif %}
             {{ restaurant.description }}
             <br>
-            {{ restaurant.rating }}
+            {{ restaurant.rating }} คะแนน
+            <br>
             {% if voted %}
             <a href="{% url 'unvote_restaurant' restaurant.res_id request.path %}" class="btn btn-secondary">Voted</a>
             {% else %}
@@ -95,7 +96,8 @@ Restaurant
                         <br>
                         {{ menu.res_id.res_name }}
                         <br>
-                        {{ menu.rating }} <i class="material-icons">sentiment_satisfied_alt</i>
+                        {{ menu.rating }}
+                        <br>
                         {% if menu.user_id_id %}
                         <a href="{% url 'unvote_menu' menu.menu_id request.path %}" class="btn btn-secondary">Voted</a>
                         {% else %}

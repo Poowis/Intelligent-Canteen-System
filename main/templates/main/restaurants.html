@@ -96,7 +96,8 @@ All Restaurants
                             </p>
                         </div>
                         <div class="col-4">
-                            {{ res.rating }}
+                            {{ res.rating }} คะแนน
+                            <br>
                             {% if res.user_id_id %}
                             <a href="{% url 'unvote_restaurant' res.res_id request.path %}" class="btn btn-secondary">Voted</a>
                             {% else %}

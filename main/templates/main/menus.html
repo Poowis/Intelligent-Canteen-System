@@ -54,7 +54,8 @@ All Menus
                         <br>
                         {{ menu.res_id.res_name }}
                         <br>
-                        {{ menu.rating }}
+                        {{ menu.rating }} คะแนน
+                        <br>
                         {% if menu.user_id_id %}
                         <a href="{% url 'unvote_menu' menu.menu_id request.path %}" class="btn btn-secondary">Voted</a>
                         {% else %}

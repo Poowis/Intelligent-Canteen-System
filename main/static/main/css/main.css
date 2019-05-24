@@ -2,8 +2,8 @@
     vertical-align: bottom;
 }
 
-#footer p {
-    margin: 0
+#footer {
+    padding: 0;
 }
 
 .noscroll {
@@ -44,10 +44,6 @@
     background-size: cover;
 }
 
-.carousel-item .img {
-    height: 1080px;
-}
-
 .card {
     margin-bottom: 16px;
     border-radius: 1em;
@@ -76,3 +72,6 @@
     border: 5px solid yellow
 }
 
+a {
+    color: black;
+}
